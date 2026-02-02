@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compass — Your Month Ahead</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm-cream: #FDF8F3;
+            --soft-peach: #FAE5D3;
+            --warm-orange: #E8985E;
+            --deep-terracotta: #C76B4A;
+            --soft-sage: #A8B5A0;
+            --calm-blue: #7BA3B5;
+            --warm-brown: #5D4E4E;
+            --light-text: #8B7B6B;
+            --dark-text: #3D3535;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--warm-cream) 0%, #FFF9F5 50%, #F5EDE6 100%);
+            min-height: 100vh;
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* Warm ambient glow */
+        .ambient {
+            position: fixed;
+            top: -50%;
+            right: -30%;
+            width: 80%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(232, 152, 94, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-2 {
+            position: fixed;
+            bottom: -30%;
+            left: -20%;
+            width: 60%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(168, 181, 160, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .greeting {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: var(--light-text);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            color: var(--dark-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .date-display {
+            font-size: 1rem;
+            color: var(--warm-orange);
+            font-weight: 500;
+        }
+
+        .affirmation {
+            margin-top: 1.5rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--light-text);
+            opacity: 0.9;
+        }
+
+        /* Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 2.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Calendar */
+        .calendar-section {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 4px 30px rgba(93, 78, 78, 0.06);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .month-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--soft-peach);
+            color: var(--deep-terracotta);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--warm-orange);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .weekday {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--light-text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.5rem;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            font-weight: 400;
+        }
+
+        .day:hover {
+            background: var(--soft-peach);
+            transform: scale(1.08);
+        }
+
+        .day.other-month {
+            color: #ccc;
+        }
+
+        .day.today {
+            background: linear-gradient(135deg, var(--warm-orange), var(--deep-terracotta));
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(232, 152, 94, 0.4);
+        }
+
+        .day.selected {
+            background: var(--calm-blue);
+            color: white;
+        }
+
+        .day.has-tasks::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            width: 5px;
+            height: 5px;
+            background: var(--soft-sage);
+            border-radius: 50%;
+        }
+
+        .day.today.has-tasks::after {
+            background: white;
+        }
+
+        /* Goals Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 30px rgba(93, 78, 78, 0.06);
+        }
+
+        .panel-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--dark-text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Tasks */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--soft-sage);
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-checkbox:hover {
+            border-color: var(--warm-orange);
+        }
+
+        .task-checkbox.checked {
+            background: var(--soft-sage);
+            border-color: var(--soft-sage);
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 0.95rem;
+            color: var(--dark-text);
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            color: var(--light-text);
+        }
+
+        .delete-task {
+            opacity: 0;
+            background: none;
+            border: none;
+            color: var(--light-text);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover .delete-task {
+            opacity: 1;
+        }
+
+        .delete-task:hover {
+            color: var(--deep-terracotta);
+        }
+
+        /* Add Task */
+        .add-task-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .add-task-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--soft-peach);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .add-task-input:focus {
+            outline: none;
+            border-color: var(--warm-orange);
+        }
+
+        .add-task-btn {
+            padding: 0.75rem 1rem;
+            background: var(--warm-orange);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .add-task-btn:hover {
+            background: var(--deep-terracotta);
+            transform: scale(1.05);
+        }
+
+        /* Goals */
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+        }
+
+        .goal-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--soft-peach);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .goal-text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .goal-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-bottom: 1px solid var(--soft-peach);
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: transparent;
+        }
+
+        .goal-input:focus {
+            outline: none;
+            border-color: var(--warm-orange);
+        }
+
+        /* Quote section */
+        .quote-panel {
+            background: linear-gradient(135deg, var(--soft-peach) 0%, #FFF5EB 100%);
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .quote-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--warm-brown);
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .quote-author {
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--light-text);
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* Selected date display */
+        .selected-date-display {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: var(--warm-orange);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--soft-peach);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient"></div>
+    <div class="ambient-2"></div>
+
+    <div class="container">
+        <header>
+            <p class="greeting" id="greeting">Good morning</p>
+            <h1>Your Month Ahead</h1>
+            <p class="date-display" id="todayDate"></p>
+            <p class="affirmation" id="affirmation"></p>
+        </header>
+
+        <div class="main-grid">
+            <section class="calendar-section">
+                <div class="calendar-header">
+                    <h2 class="month-title" id="monthTitle"></h2>
+                    <div class="nav-buttons">
+                        <button class="nav-btn" id="prevMonth">←</button>
+                        <button class="nav-btn" id="nextMonth">→</button>
+                    </div>
+                </div>
+
+                <div class="weekdays">
+                    <span class="weekday">Sun</span>
+                    <span class="weekday">Mon</span>
+                    <span class="weekday">Tue</span>
+                    <span class="weekday">Wed</span>
+                    <span class="weekday">Thu</span>
+                    <span class="weekday">Fri</span>
+                    <span class="weekday">Sat</span>
+                </div>
+
+                <div class="days-grid" id="daysGrid"></div>
+            </section>
+
+            <aside class="sidebar">
+                <div class="panel">
+                    <h3 class="panel-title">☀️ Today's Tasks</h3>
+                    <p class="selected-date-display" id="selectedDateDisplay"></p>
+                    <ul class="task-list" id="taskList"></ul>
+                    <form class="add-task-form" id="addTaskForm">
+                        <input type="text" class="add-task-input" id="taskInput" placeholder="Add a task...">
+                        <button type="submit" class="add-task-btn">+</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h3 class="panel-title">🎯 Monthly Goals</h3>
+                    <div id="goalsList">
+                        <div class="goal-item">
+                            <span class="goal-icon">1</span>
+                            <input type="text" class="goal-input" data-goal="1" placeholder="First goal...">
+                        </div>
+                        <div class="goal-item">
+                            <span class="goal-icon">2</span>
+                            <input type="text" class="goal-input" data-goal="2" placeholder="Second goal...">
+                        </div>
+                        <div class="goal-item">
+                            <span class="goal-icon">3</span>
+                            <input type="text" class="goal-input" data-goal="3" placeholder="Third goal...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel quote-panel">
+                    <p class="quote-text" id="quoteText"></p>
+                    <p class="quote-author" id="quoteAuthor"></p>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let tasks = JSON.parse(localStorage.getItem('compass-tasks') || '{}');
+        let goals = JSON.parse(localStorage.getItem('compass-goals') || '{}');
+
+        // Affirmations
+        const affirmations = [
+            "Every step forward is progress, no matter how small.",
+            "You have everything you need to succeed today.",
+            "Breathe. You're exactly where you need to be.",
+            "Your potential is limitless. Trust the journey.",
+            "Today is full of possibilities waiting to unfold.",
+            "You are capable of amazing things.",
+            "Peace comes from within. Let it guide you.",
+            "Small consistent actions create remarkable results.",
+            "You are growing, even when you can't see it.",
+            "This moment is a gift. Embrace it fully."
+        ];
+
+        // Quotes
+        const quotes = [
+            { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+            { text: "What we think, we become.", author: "Buddha" },
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+            { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+            { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+            { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
+            { text: "The journey of a thousand miles begins with a single step.", author: "Lao Tzu" }
+        ];
+
+        // Initialize
+        function init() {
+            updateGreeting();
+            updateAffirmation();
+            updateQuote();
+            renderCalendar();
+            renderTasks();
+            loadGoals();
+            setupEventListeners();
+        }
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Good evening';
+            if (hour < 12) greeting = 'Good morning';
+            else if (hour < 17) greeting = 'Good afternoon';
+            document.getElementById('greeting').textContent = greeting;
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US', options);
+        }
+
+        function updateAffirmation() {
+            const today = new Date().toDateString();
+            const index = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0) % affirmations.length;
+            document.getElementById('affirmation').textContent = `"${affirmations[index]}"`;
+        }
+
+        function updateQuote() {
+            const today = new Date().toDateString();
+            const index = (today.split('').reduce((a, b) => a + b.charCodeAt(0), 0) + 7) % quotes.length;
+            const quote = quotes[index];
+            document.getElementById('quoteText').textContent = `"${quote.text}"`;
+            document.getElementById('quoteAuthor').textContent = `— ${quote.author}`;
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('monthTitle').textContent = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+            const grid = document.getElementById('daysGrid');
+            grid.innerHTML = '';
+
+            const today = new Date();
+            const todayStr = today.toDateString();
+            const selectedStr = selectedDate.toDateString();
+
+            // Previous month days
+            for (let i = startDay - 1; i >= 0; i--) {
+                const day = document.createElement('div');
+                day.className = 'day other-month';
+                day.textContent = prevMonthLastDay - i;
+                grid.appendChild(day);
+            }
+
+            // Current month days
+            for (let i = 1; i <= totalDays; i++) {
+                const day = document.createElement('div');
+                const dateObj = new Date(year, month, i);
+                const dateStr = dateObj.toDateString();
+
+                day.className = 'day';
+                day.textContent = i;
+
+                if (dateStr === todayStr) day.classList.add('today');
+                if (dateStr === selectedStr) day.classList.add('selected');
+
+                const dateKey = getDateKey(dateObj);
+                if (tasks[dateKey] && tasks[dateKey].length > 0) {
+                    day.classList.add('has-tasks');
+                }
+
+                day.addEventListener('click', () => selectDate(dateObj));
+                grid.appendChild(day);
+            }
+
+            // Next month days
+            const remaining = 42 - (startDay + totalDays);
+            for (let i = 1; i <= remaining; i++) {
+                const day = document.createElement('div');
+                day.className = 'day other-month';
+                day.textContent = i;
+                grid.appendChild(day);
+            }
+        }
+
+        function selectDate(date) {
+            selectedDate = date;
+            renderCalendar();
+            renderTasks();
+        }
+
+        function getDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function renderTasks() {
+            const dateKey = getDateKey(selectedDate);
+            const dayTasks = tasks[dateKey] || [];
+
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            document.getElementById('selectedDateDisplay').textContent = selectedDate.toLocaleDateString('en-US', options);
+
+            const list = document.getElementById('taskList');
+
+            if (dayTasks.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🌱</div>
+                        <p>No tasks yet. Start fresh!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = dayTasks.map((task, index) => `
+                <li class="task-item">
+                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" data-index="${index}"></div>
+                    <span class="task-text ${task.completed ? 'completed' : ''}">${task.text}</span>
+                    <button class="delete-task" data-index="${index}">✕</button>
+                </li>
+            `).join('');
+
+            // Add event listeners
+            list.querySelectorAll('.task-checkbox').forEach(cb => {
+                cb.addEventListener('click', () => toggleTask(parseInt(cb.dataset.index)));
+            });
+
+            list.querySelectorAll('.delete-task').forEach(btn => {
+                btn.addEventListener('click', () => deleteTask(parseInt(btn.dataset.index)));
+            });
+        }
+
+        function addTask(text) {
+            const dateKey = getDateKey(selectedDate);
+            if (!tasks[dateKey]) tasks[dateKey] = [];
+            tasks[dateKey].push({ text, completed: false });
+            saveTasks();
+            renderTasks();
+            renderCalendar();
+        }
+
+        function toggleTask(index) {
+            const dateKey = getDateKey(selectedDate);
+            tasks[dateKey][index].completed = !tasks[dateKey][index].completed;
+            saveTasks();
+            renderTasks();
+        }
+
+        function deleteTask(index) {
+            const dateKey = getDateKey(selectedDate);
+            tasks[dateKey].splice(index, 1);
+            if (tasks[dateKey].length === 0) delete tasks[dateKey];
+            saveTasks();
+            renderTasks();
+            renderCalendar();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('compass-tasks', JSON.stringify(tasks));
+        }
+
+        function loadGoals() {
+            const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+            const monthGoals = goals[monthKey] || {};
+
+            document.querySelectorAll('.goal-input').forEach(input => {
+                const goalNum = input.dataset.goal;
+                input.value = monthGoals[goalNum] || '';
+            });
+        }
+
+        function saveGoal(goalNum, text) {
+            const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+            if (!goals[monthKey]) goals[monthKey] = {};
+            goals[monthKey][goalNum] = text;
+            localStorage.setItem('compass-goals', JSON.stringify(goals));
+        }
+
+        function setupEventListeners() {
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+                loadGoals();
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+                loadGoals();
+            });
+
+            document.getElementById('addTaskForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('taskInput');
+                if (input.value.trim()) {
+                    addTask(input.value.trim());
+                    input.value = '';
+                }
+            });
+
+            document.querySelectorAll('.goal-input').forEach(input => {
+                input.addEventListener('change', () => {
+                    saveGoal(input.dataset.goal, input.value);
+                });
+            });
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
