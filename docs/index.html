@@ -231,6 +231,35 @@
             background: white;
         }
 
+        /* Completed day - all tasks done! */
+        .day.all-completed {
+            background: linear-gradient(135deg, #7CB87C, #5A9A5A);
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 3px 12px rgba(90, 154, 90, 0.35);
+        }
+
+        .day.all-completed:hover {
+            background: linear-gradient(135deg, #8BC88B, #6AAA6A);
+            transform: scale(1.08);
+        }
+
+        .day.all-completed::after {
+            content: '✓';
+            position: absolute;
+            bottom: 4px;
+            width: auto;
+            height: auto;
+            background: none;
+            font-size: 10px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .day.today.all-completed {
+            background: linear-gradient(135deg, #6AAF6A, #4A8F4A);
+            box-shadow: 0 4px 15px rgba(90, 154, 90, 0.5);
+        }
+
         /* Goals Sidebar */
         .sidebar {
             display: flex;
@@ -643,7 +672,12 @@
 
                 const dateKey = getDateKey(dateObj);
                 if (tasks[dateKey] && tasks[dateKey].length > 0) {
-                    day.classList.add('has-tasks');
+                    const allCompleted = tasks[dateKey].every(task => task.completed);
+                    if (allCompleted) {
+                        day.classList.add('all-completed');
+                    } else {
+                        day.classList.add('has-tasks');
+                    }
                 }
 
                 day.addEventListener('click', () => selectDate(dateObj));
@@ -721,6 +755,7 @@
             tasks[dateKey][index].completed = !tasks[dateKey][index].completed;
             saveTasks();
             renderTasks();
+            renderCalendar(); // Re-render to update completed status
         }
 
         function deleteTask(index) {
@@ -787,4 +822,5 @@
     </script>
 </body>
 </html>
+
 
