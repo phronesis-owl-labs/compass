@@ -497,6 +497,7 @@
             <h1>Your Month Ahead</h1>
             <p class="date-display" id="todayDate"></p>
             <p class="affirmation" id="affirmation"></p>
+            <p style="margin-top: 1rem;"><a href="#" id="clearData" style="font-size: 0.75rem; color: #ccc; text-decoration: none;">Reset all data</a></p>
         </header>
 
         <div class="main-grid">
@@ -594,6 +595,8 @@
 
         // Initialize
         function init() {
+            // Debug: log localStorage state
+            console.log('Compass v3 init - Tasks:', JSON.stringify(tasks));
             updateGreeting();
             updateAffirmation();
             updateQuote();
@@ -819,6 +822,21 @@
                 input.addEventListener('change', () => {
                     saveGoal(input.dataset.goal, input.value);
                 });
+            });
+
+            // Clear data link
+            document.getElementById('clearData').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Clear all tasks and goals? This cannot be undone.')) {
+                    localStorage.removeItem('compass-tasks');
+                    localStorage.removeItem('compass-goals');
+                    tasks = {};
+                    goals = {};
+                    renderCalendar();
+                    renderTasks();
+                    loadGoals();
+                    alert('All data cleared!');
+                }
             });
         }
 
