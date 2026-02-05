@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compass — Your Month Ahead</title>
+    <title>Compass — Your Month Ahead (v2)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -671,8 +671,9 @@
                 if (dateStr === selectedStr) day.classList.add('selected');
 
                 const dateKey = getDateKey(dateObj);
-                if (tasks[dateKey] && tasks[dateKey].length > 0) {
-                    const allCompleted = tasks[dateKey].every(task => task.completed);
+                const dayTasks = tasks[dateKey] || [];
+                if (dayTasks.length > 0) {
+                    const allCompleted = dayTasks.length > 0 && dayTasks.every(task => task.completed);
                     if (allCompleted) {
                         day.classList.add('all-completed');
                     } else {
